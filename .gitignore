@@ -1,0 +1,16 @@
+models/*
+!models/models_go_here.md
+
+samples/*
+!samples/.gitkeep
+
+*.wav
+*.pkl
+venv
+__pycache__
+.idea
+saved_stories/*
+
+story/grammars/_*.json
+
+custom_play.sh
