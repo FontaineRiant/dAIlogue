@@ -5,6 +5,7 @@ import random
 import re
 import wave
 import TTS
+import regex
 from TTS.utils.synthesizer import Synthesizer
 from TTS.utils.manage import ModelManager
 from pygame import mixer
@@ -79,6 +80,11 @@ class Dub:
 
             # trailing periods creates an empty sentence and crashes
             text = text.strip("\n>. ")
+
+            if len(text) < 1:
+                self.stop()
+                return
+
             # final clean dot
             if text[-1] not in ['.', '!', '?']:
                 text += '.'

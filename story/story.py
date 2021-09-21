@@ -18,6 +18,7 @@ class Story:
         self.censor = censor
         self.gen = gen
         self.events = []
+        self.ai_name = 'They'
 
         if not os.path.exists(SAVE_PATH):
             os.makedirs(SAVE_PATH)
@@ -30,7 +31,7 @@ class Story:
         exists = os.path.isfile(os.path.join(SAVE_PATH, file_name))
         if exists:
             with open(os.path.join(SAVE_PATH, file_name), "r") as fp:
-                self.events = json.load(fp)
+                self.__dict__ = json.load(fp)
                 return str(self)
         else:
             return "Error save not found."
@@ -44,11 +45,11 @@ class Story:
     def save(self, save_name: str):
         file_name = str(save_name) + ".json"
         with open(os.path.join(SAVE_PATH, file_name), "w") as fp:
-            json.dump(self.events, fp)
+            json.dump({k: v for k, v in self.__dict__.items() if k != 'gen'}, fp)
 
-    def new(self, context: str = '', prompt: str = ''):
-        self.events = [context]
-        self.act(prompt)
+    def new(self, ai_name='They', context=''):
+        self.ai_name = ai_name
+        self.events = [context, '']
         return str(self)
 
     def clean_input(self, action=''):
@@ -72,19 +73,18 @@ class Story:
         return text.strip()
 
     def clean_result(self, result):
-        result = re.sub(r'<\|endoftext\|>[\s\S]*$', '', result)  # parse endoftext token (it happens)
+        result = re.sub(r'("|<\|endoftext\|>)[\s\S]*$', '', result)  # parse endoftext token (it happens) or '"'
 
         # remove sentences that are cut in the middle
         end_of_sentence_index = next(iter([i for i, j in list(enumerate(result, 1))[::-1] if j in '.:?!']),
                                      len(result))
         result = result[:end_of_sentence_index]
 
-        # remove repeating substrings of 2+ characters at the end of result
-        result = re.sub(r'([\s\S]{2,})([\s\S]?\1)+$', r'\1', result)
+        if len(result) > 0 and result[-1] not in ('.', '!', '?'):
+            result = result + '.'
 
         # close open quotes
-        if result.count('"') % 2 != 0:
-            result += '"'
+        result += '"'
 
         result = result.replace("’", "'")
         result = result.replace("`", "'")
@@ -140,4 +140,6 @@ class Story:
 
     def __str__(self):
         text = ''.join(filter(None, self.events)).lstrip()
+        if text is None:
+            text = ''
         return text

@@ -9,7 +9,7 @@ class Generator:
     def __init__(self,
                  model_name='gpt-neo-2.7B',
                  seed=None,
-                 length=80,
+                 length=60,
                  temperature=0.85,
                  top_k=40,
                  top_p=0.9,

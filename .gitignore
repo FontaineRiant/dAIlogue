@@ -13,4 +13,4 @@ saved_stories/*
 
 story/grammars/_*.json
 
-custom_play.sh
+*.whl
