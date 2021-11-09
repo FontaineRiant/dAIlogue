@@ -5,7 +5,7 @@ The suggested model has 2.7 billion parameters
 and was fine-tuned to write light novels, including dialogues.
 
 ## Features
-* [Not yet implemented] State-of-the-art Speech To Text AI that listens to your voice,
+* State-of-the-art Speech To Text AI that listens to your voice,
 * State-of-the-art Artificial Intelligence that follows the conversation and generates human-like sentences,
 * Stage-of-the-art Text To Speech AI that reads the outputs out loud.
 * Pick from multiple speakers, affecting their behaviour: a self-aware AI, a man, a woman, a robot, your cat/dog, or an idiot.
@@ -17,9 +17,10 @@ and was fine-tuned to write light novels, including dialogues.
 2. Set the PHONEMIZER_ESPEAK_PATH environment variable to `C:\Program Files\eSpeak NG\espeak-ng.exe` or wherever you installed it.
 3. Download or clone this repository.
 4. Run `install.ps1` (windows powershell) or `install.sh` (shell script).
-5. Install pyaudio (for windows get it from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)).
-6. Download a GPT-NEO model and put its content in `./models/[model name]/`. Here's a link to [finetuneanon's light novel model](https://drive.google.com/file/d/1M1JY459RBIgLghtWDRDXlD4Z5DAjjMwg/view?usp=sharing). 
-7. Play by running `play.ps1` (windows powershell) or `play.sh` (shell script). You can also launch `main.py` directly with your own launch options (model selection, gpu/cpu).
+5. Install pyaudio 0.2.11 (for windows get it from [here](https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio)).
+6. Download a GPT-NEO model and put its content in `./models/[model name]/`. Here's a link to [finetuneanon's light novel model](https://drive.google.com/file/d/1M1JY459RBIgLghtWDRDXlD4Z5DAjjMwg/view?usp=sharing).
+7. [Download an STT model](https://coqui.ai/english/coqui/v1.0.0-huge-vocab#download) (rename it `stt.tflite`) and put it at `./models/stt.tflite` (optional: do the same for its scorer `./models/stt.scorer`)
+8. Play by running `play.ps1` (windows powershell) or `play.sh` (shell script). You can also launch `main.py` directly with your own launch options (model selection, gpu/cpu).
 
 
 ## FAQ

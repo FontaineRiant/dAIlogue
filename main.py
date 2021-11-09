@@ -30,7 +30,7 @@ class Game:
         })
         self.story = Story(self.gen, censor=args.censor)
         self.voice = 1.05
-        self.loop = self.loop_text
+        self.loop = self.loop_speech
         self.sample_hashes = []
 
     def play(self):
@@ -57,6 +57,7 @@ class Game:
             choices += ['switch to speech input' if self.loop == self.loop_text else 'switch to text input']
             if len(self.story.events) > 2:
                 choices.insert(1, 'save')
+                choices.insert(2, 'revert')
 
             main_menu = [{
                 'type': list_input_type,
@@ -82,6 +83,11 @@ class Game:
                 self.loop = self.loop_speech
             elif action == 'switch to text input':
                 self.loop = self.loop_text
+            elif action == 'revert':
+                if len(self.story.events) < 4:
+                    self.story.new(ai_name=self.story.ai_name, context=self.story.events[0])
+                else:
+                    self.story.events = self.story.events[:-2]
             else:
                 print('invalid input')
 
@@ -111,7 +117,11 @@ class Game:
         if action == '< Back':
             return
 
+        if self.loop == self.loop_text:
+            print("Start typing: (\"/help\" to get a list of commands)")
+
         self.story.new(ai_name=contexts[action][0], context=contexts[action][1])
+
 
     def load_prompt(self):
         menu = [{
@@ -164,24 +174,7 @@ class Game:
                 input('Press enter to continue.')
             else:
                 action = user_input.strip()
-                if len(action) == 0:
-                    action = '...'
-
-                # punctuate
-                if action[-1] not in ('.', '!', '?'):
-                    if '?' not in action and '!' not in action and '.' not in action and re.search(
-                            r'^\w+', action.lower()).group(0) in [
-                            'why', 'what', 'where', 'who', 'how', 'did', "didn", 'is', 'are', 'isn', "aren", 'am'
-                            'can', 'could', 'couldn', 'should', 'shouldn', 'would', 'wouldn', 'may']:
-                        # don't include 'do' and 'don't' as they are likely to be imperatives
-                        action = action + '?'
-                    else:
-                        action = action + '.'
-
-                # capitalize
-                action = re.sub(r'\bi\b', 'I', action)  # capitalize lone 'I'
-                action = re.sub('^([a-z])|[\.|\?|\!]\s*([a-z])|\s+([a-z])(?=\.)',
-                                lambda matchobj: matchobj.group(0).upper(), action)  # capitalize start of sentences
+                action = self.punctuate_and_capitalize(action)
                 action = '\nI said "' + action + f'"\n{self.story.ai_name} said "'
 
                 result = self.story.act(action)
@@ -191,6 +184,50 @@ class Game:
                 else:
                     if not args.jupyter:
                         self.tts.deep_play(result, self.voice)
+
+    def loop_speech(self):
+        self.pprint()
+
+        while True:
+            self.pprint()
+            try:
+                user_input = listen()
+            except KeyboardInterrupt:
+                return
+
+            action = user_input.strip()
+            action = self.punctuate_and_capitalize(action)
+
+            self.pprint()
+            print(f"– {action}")
+
+            action = '\nI said "' + action + f'"\n{self.story.ai_name} said "'
+
+            result = self.story.act(action)
+            self.pprint()
+            if result is None:
+                print("--- The model failed to produce an decent output after multiple tries. Try something else.")
+            else:
+                if not args.jupyter:
+                    self.tts.deep_play(result, self.voice)
+
+    def punctuate_and_capitalize(self, action: str):
+        # punctuate
+        if action[-1] not in ('.', '!', '?'):
+            if '?' not in action and '!' not in action and '.' not in action and re.search(
+                    r'^\w+', action.lower()).group(0) in [
+                'why', 'what', 'where', 'who', 'how', 'did', "didn", 'is', 'are', 'isn', "aren", 'am', 'can', 'could',
+                'couldn', 'should', 'shouldn', 'would', 'wouldn', 'may']:
+                # don't include 'do' and 'don't' as they are likely to be imperatives
+                action = action + '?'
+            else:
+                action = action + '.'
+
+        # capitalize
+        action = re.sub(r'\bi\b', 'I', action)  # capitalize lone 'I'
+        action = re.sub('^([a-z])|[\.|\?|\!]\s*([a-z])|\s+([a-z])(?=\.)',
+                        lambda matchobj: matchobj.group(0).upper(), action)  # capitalize start of sentences
+        return action
 
     def pprint(self):
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -230,13 +267,16 @@ if __name__ == "__main__":
                         help='adds a censor to the generator')
     parser.add_argument('-m', '--model', action='store',
                         default=['gpt-neo-2.7B'], nargs=1, type=str,
-                        help='model name')
+                        help='gpt model name')
     parser.add_argument('-t', '--cputts', action='store_true',
                         default=False,
                         help='force TTS to run on CPU')
     parser.add_argument('-g', '--cpugpt', action='store_true',
                         default=False,
                         help='(broken) force text generation to run on CPU')
+    parser.add_argument('-s', '--sttmodel', action='store',
+                        default=['stt'], nargs=1, type=str,
+                        help='stt model name')
 
     args = parser.parse_args()
 
@@ -244,6 +284,8 @@ if __name__ == "__main__":
 
     if not args.jupyter:
         from audio.tts import Dub
+        from audio.stt import listen, load_model
+        load_model(args.sttmodel[0])
 
     if not os.path.exists('./saved_stories'):
         os.mkdir('./saved_stories')
