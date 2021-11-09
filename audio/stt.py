@@ -1,3 +1,6 @@
+#  adapted from Coqui's
+#  https://github.com/coqui-ai/STT-examples/blob/r1.0/mic_vad_streaming/mic_vad_streaming.py
+
 import logging, os
 import collections, queue
 import stt
