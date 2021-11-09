@@ -7,7 +7,7 @@ and was fine-tuned to write light novels, including dialogues.
 ## Features
 * State-of-the-art Speech To Text AI that listens to your voice,
 * State-of-the-art Artificial Intelligence that follows the conversation and generates human-like sentences,
-* Stage-of-the-art Text To Speech AI that reads the outputs out loud.
+* State-of-the-art Text To Speech AI that reads the outputs out loud.
 * Pick from multiple speakers, affecting their behaviour: a self-aware AI, a man, a woman, a robot, your cat/dog, or an idiot.
 
 
