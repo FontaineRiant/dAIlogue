@@ -1,3 +1,6 @@
+
+# Out of date, use [wrAIter](https://github.com/FontaineRiant/wrAIter) in conversation mode instead
+
 dAIlogue is a voiced AI that listens to your microphone input or reads your text input and replies using its own voice.
 
 The AI writer is powered by EleitherAI's GPT-NEO model, a replication of GPT-3.
